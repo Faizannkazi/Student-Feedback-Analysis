@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="dashboard-body">
+    
+    <div class="top-nav">
+        <h2>Student Feedback System</h2>
+        <a href="{{ url_for('login') }}" class="logout-btn">Admin Login</a>
+    </div>
+
+    <div class="dashboard-wrapper">
+        
+        <div class="metrics-grid">
+            <div class="metric-card top-gradient-purple">
+                <p class="metric-title">TOTAL FEEDBACK</p>
+                <h3 class="metric-value">{{ total_feedback }}</h3>
+            </div>
+            <div class="metric-card top-gradient-pink">
+                <p class="metric-title">AVERAGE RATING</p>
+                <h3 class="metric-value">{{ average_rating }} <span class="out-of">/ 5</span></h3>
+            </div>
+        </div>
+
+        <div class="middle-grid">
+            <div class="table-card">
+                <p class="card-heading">Subject Performance</p>
+                <table class="modern-table">
+                    <thead>
+                        <tr>
+                            <th>SUBJECT</th>
+                            <th>AVG RATING</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for stat in subject_stats %}
+                        <tr>
+                            <td><strong>{{ stat['subject'] }}</strong></td>
+                            <td><span class="badge-green">{{ "%.2f"|format(stat['avg']) }}</span></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="chart-card">
+                <p class="card-heading">Visual Overview</p>
+                <div class="canvas-container">
+                    <canvas id="subjectBarChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="doughnut-container">
+            <div class="chart-card">
+                <p class="card-heading">Overall Ratings</p>
+                <div class="canvas-container" style="height: 250px; width: 250px;">
+                    <canvas id="overallDoughnutChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="table-card">
+            <p class="card-heading">All Feedback Responses</p>
+            <table class="modern-table">
+                <thead>
+                    <tr>
+                        <th>SUBJECT</th>
+                        <th>FACULTY</th>
+                        <th>RATING</th>
+                        <th>PERCENTAGE</th>
+                        <th>AI SENTIMENT</th>
+                        <th>ACTION</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in feedbacks %}
+                    <tr>
+                        <td><strong>{{ row['subject'] }}</strong></td>
+                        <td>{{ row['faculty_name'] }}</td>
+                        <td><strong>{{ row['rating'] }}/5</strong></td>
+                        <td><span class="text-green">{{ (row['rating'] / 5 * 100)|int }}%</span></td>
+                        <td>
+                            <span style="font-weight: 700; padding: 4px 10px; border-radius: 8px; font-size: 12px;
+                                {% if row['sentiment'] == 'Positive' %} background: #e2fbd7; color: #34aa44;
+                                {% elif row['sentiment'] == 'Negative' %} background: #fee2e2; color: #dc2626;
+                                {% else %} background: #f1f5f9; color: #64748b; {% endif %}">
+                                {{ row['sentiment'] }}
+                            </span>
+                        </td>
+                        <td><button class="btn-delete">Delete</button></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // --- Bar Chart (Subject Performance) ---
+        const subLabels = JSON.parse('{{ subject_labels | tojson }}');
+        const subData = JSON.parse('{{ subject_averages | tojson }}');
+        
+        // Create a gradient for the bars
+        const ctxBar = document.getElementById('subjectBarChart').getContext('2d');
+        const gradientBar = ctxBar.createLinearGradient(0, 0, 0, 400);
+        gradientBar.addColorStop(0, '#868cff');
+        gradientBar.addColorStop(1, '#c484f3');
+
+        new Chart(ctxBar, {
+            type: 'bar', 
+            data: {
+                labels: subLabels,
+                datasets: [{
+                    data: subData, 
+                    backgroundColor: gradientBar,
+                    borderRadius: 6,
+                    barThickness: 30
+                }]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { beginAtZero: true, max: 5, ticks: { stepSize: 0.5, color: '#888' }, grid: { borderDash: [5, 5], color: '#eee' } },
+                    x: { ticks: { color: '#888', font: { weight: '600' } }, grid: { display: false } }
+                }
+            }
+        });
+
+        // --- Doughnut Chart (Overall Ratings) ---
+        const doughnutData = JSON.parse('{{ doughnut_data | tojson }}');
+        const ctxDoughnut = document.getElementById('overallDoughnutChart').getContext('2d');
+        
+        new Chart(ctxDoughnut, {
+            type: 'doughnut',
+            data: {
+                labels: ['5 Stars', '4 Stars', '3 Stars', '2 Stars', '1 Star'],
+                datasets: [{
+                    data: doughnutData,
+                    backgroundColor: ['#4318ff', '#01b574', '#ffb547', '#ff8f4c', '#e31a1a'],
+                    borderWidth: 0,
+                    cutout: '70%'
+                }]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'right', labels: { usePointStyle: true, boxWidth: 8, font: { size: 11 } } }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
