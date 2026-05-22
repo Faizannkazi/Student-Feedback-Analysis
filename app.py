@@ -47,7 +47,7 @@ def feedback():
         rating = request.form['rating']
         comments = request.form['comments']
         
-        # AI Sentiment Analysis
+        
         sentiment = "Neutral"
         if comments.strip():
             analysis = TextBlob(comments)
@@ -72,21 +72,21 @@ def dashboard():
         
     conn = get_db_connection()
     
-    # 1. Top Metrics
+    
     total_feedback = conn.execute('SELECT COUNT(*) FROM feedback').fetchone()[0]
     avg_query = conn.execute('SELECT AVG(rating) FROM feedback').fetchone()[0]
     average_rating = round(avg_query, 1) if avg_query else 0.0 
     
     feedbacks = conn.execute('SELECT * FROM feedback').fetchall()
     
-    # 2. Overall Ratings (For Doughnut Chart)
+    
     rating_counts = {5: 0, 4: 0, 3: 0, 2: 0, 1: 0}
     counts_query = conn.execute('SELECT rating, COUNT(*) as count FROM feedback GROUP BY rating').fetchall()
     for row in counts_query:
         rating_counts[row['rating']] = row['count']
     doughnut_data = [rating_counts[5], rating_counts[4], rating_counts[3], rating_counts[2], rating_counts[1]]
     
-    # 3. Subject Performance (For Table & Bar Chart)
+    
     subject_stats = []
     subject_labels = []
     subject_averages = []

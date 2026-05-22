@@ -101,11 +101,11 @@
     </div>
 
     <script>
-        // --- Bar Chart (Subject Performance) ---
+        
         const subLabels = JSON.parse('{{ subject_labels | tojson }}');
         const subData = JSON.parse('{{ subject_averages | tojson }}');
         
-        // Create a gradient for the bars
+        
         const ctxBar = document.getElementById('subjectBarChart').getContext('2d');
         const gradientBar = ctxBar.createLinearGradient(0, 0, 0, 400);
         gradientBar.addColorStop(0, '#868cff');
@@ -132,7 +132,7 @@
             }
         });
 
-        // --- Doughnut Chart (Overall Ratings) ---
+        
         const doughnutData = JSON.parse('{{ doughnut_data | tojson }}');
         const ctxDoughnut = document.getElementById('overallDoughnutChart').getContext('2d');
         
