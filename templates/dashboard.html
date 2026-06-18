@@ -96,7 +96,15 @@
                                 {{ row['sentiment'] }}
                             </span>
                         </td>
-                        <td><button class="btn-delete">Delete</button></td>
+                        <td>
+    <form action="{{ url_for('delete_feedback', id=row['id']) }}"
+          method="POST"
+          style="margin:0; padding:0; display:inline;">
+        <button type="submit" class="btn-delete">
+            Delete
+        </button>
+    </form>
+</td>   
                     </tr>
                     {% endfor %}
                 </tbody>

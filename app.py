@@ -108,6 +108,14 @@ def dashboard():
                            subject_stats=subject_stats,
                            subject_labels=subject_labels,
                            subject_averages=subject_averages)
+@app.route('/delete/<int:id>', methods=['POST'])
+def delete_feedback(id):
+    conn = get_db_connection()
+    conn.execute('DELETE FROM feedback WHERE id = ?', (id,))
+    conn.commit()
+    conn.close()
+
+    return redirect(url_for('dashboard'))
 
 if __name__ == '__main__':
     app.run(debug=True)
