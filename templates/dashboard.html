@@ -10,8 +10,12 @@
     
     <div class="top-nav">
         <h2>Student Feedback System</h2>
-        <a href="{{ url_for('login') }}" class="logout-btn">Admin Login</a>
+        <div style="display: flex; gap: 10px;">
+            <a href="{{ url_for('login') }}" class="logout-btn">Admin Login</a>
+            <a href="{{url_for('feedback')}}" class="logout-btn">Submit Feedback</a>
+        </div>
     </div>
+      
 
     <div class="dashboard-wrapper">
         
